@@ -36,3 +36,8 @@
     }
 });
 ```
+
+###4 注
+>* 暂时只有两种访问模式，GET和POST
+>* GET只能用@path来定义占位符
+>* POST只能传入一个bean，并通过requsetbody传到服务器
