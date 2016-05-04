@@ -41,6 +41,7 @@ public class OkHttpCall<T> implements Call<T>  {
             = MediaType.parse("application/json; charset=utf-8");
     OkHttpClient client = new OkHttpClient();
     Request request;
+    okhttp3.Call rawCall;
     public OkHttpCall(String baseurl,Method method,Object[] args) {
         // TODO Auto-generated constructor stub
         this.baseurl=baseurl;
@@ -91,14 +92,16 @@ public class OkHttpCall<T> implements Call<T>  {
     @Override
     public Response<T> execute()  throws IOException {
         // TODO Auto-generated method stub
-        okhttp3.Response response=client.newCall(request).execute();
+        rawCall=client.newCall(request);
+        okhttp3.Response response=rawCall.execute();
         return parseResponse(response);
     }
 
     @Override
     public void enqueue(final Callback<T> callback) {
         // TODO Auto-generated method stub
-        client.newCall(request).enqueue(new okhttp3.Callback() {
+        rawCall=client.newCall(request);
+        rawCall.enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
                 callback.onFailure(getThis(),e);
@@ -110,6 +113,30 @@ public class OkHttpCall<T> implements Call<T>  {
             }
         });
     }
+
+    @Override
+    public void cancel() {
+        if(rawCall!=null)
+        {
+            if(rawCall.isCanceled())
+            {
+                rawCall.cancel();
+            }
+        }
+    }
+
+    @Override
+    public boolean isCanceled() {
+       if(rawCall!=null)
+       {
+           return  rawCall.isCanceled();
+       }
+       else
+       {
+           return false;
+       }
+    }
+
     private void parseMethodAnnotation(Annotation annotation)
     {
         if(annotation instanceof GET)
